@@ -1,10 +1,13 @@
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
+
 import numpy as np
 import matplotlib.pyplot as plot
 import matplotlib.cm as cm
 import random
 import Radon
 import math
-sp_short=[-6,-5,-4,4,5,6]
+
+sp_short=[-6,-5,-4,-3,3,4,5,6]
 sp=[-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6]
 rd=np.linspace(- 1, 1, len(sp))
 n = len(sp)
@@ -19,27 +22,26 @@ radon = Radon.Radon(sp, rd, m, 1)
 radon_pruned = Radon.Radon(sp_short, rd, m, 1)
 
 output = np.zeros((n,m))
-for i in range(n/2+1):
-	for k in range(15):
-		j = 5.0 + i / 2.0 + 2.0*k 
-		lower_index = math.floor(j)
-		upper_index = 1 + lower_index
-		lower_fraction = ((-1)**k)*(1 - j + lower_index)
-		upper_fraction = ((-1)**k)*(j - lower_index)
-		output[(i, lower_index)] = lower_fraction
-		output[(i, upper_index)] = upper_fraction
-		output[(n-i-1, lower_index)] = lower_fraction
-		output[(n-i-1, upper_index)] = upper_fraction
-	#print j, lower_index, upper_index, lower_fraction, upper_fraction
+for i in range(n):
+    for k in range(10):
+        l = (i)
+        j = 5.0 + 0.025 * l * l + 3.0*k 
+        lower_index = math.floor(j)
+        upper_index = 1 + lower_index
+        lower_fraction = ((-1)**k)*(1 - j + lower_index)
+        upper_fraction = ((-1)**k)*(j - lower_index)
+        output[(i, lower_index)] = lower_fraction
+        output[(i, upper_index)] = upper_fraction
+        #print j, lower_index, upper_index, lower_fraction, upper_fraction
 
 output_pruned = np.zeros((n_pruned,m))
 for i in range(n_pruned):
-	index = sp.index(sp_short[i])
-	for j in range(m):
-		output_pruned[(i,j)] = output[(index,j)]
+    index = sp.index(sp_short[i])
+    for j in range(m):
+        output_pruned[(i,j)] = output[(index,j)]
 
 
-s = radon_pruned.newScheme(output_pruned, 150)
+s = radon_pruned.newScheme(output_pruned, 100)
 
 input_byInv = radon_pruned.adjointForward(output_pruned)
 output_byInv = radon.adjointInverse(input_byInv)

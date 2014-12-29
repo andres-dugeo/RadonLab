@@ -53,8 +53,6 @@ class Radon_fast:
         rd_range = range(len(self.radonDimensions))
         return [[[_get_indices(sd_index, rd_index , index) for rd_index in rd_range] for index in range(sampleCount)] for sd_index in sd_range]
 
-
-
     def forward(self, input):
         def _get_sum(rd_index, index):
             subarray = self.array[rd_index][index]
@@ -72,3 +70,23 @@ class Radon_fast:
         rd_range = range(len(self.radonDimensions))
         sampleCount = input.shape[1]
         return np.array([[_get_sum(sd_index, index) for index in range(sampleCount)] for sd_index in sd_range])
+
+    def _test_func(self):
+        def _get_mult(rd_index, rd2_index, index):
+            retArray = []
+            subarray = self.array[rd_index][index]
+            for sd_index in sd_range:
+                indices = subarray[sd_index]
+                for index_and_factor in indices:
+                    index2 = index_and_factor[0]
+                    factor = index_and_factor[1]
+                    indices2 = self.array_transpose[sd_index][index2]
+                    for index_and_factor_2 in indices2:
+                        ret_array.append([index_and_factor_2[0], index_and_factor_2[1]*factor])
+            return ret_array
+        sd_range = range(len(self.spatialDimensions))
+        rd_range = range(len(self.radonDimensions))
+        sampleCount = input.shape[1]
+        return [[[_get_mult(rd_index, rd2_index , index) for rd2_index in rd_range] for index in range(sampleCount)] for rd_index in rd_range]
+
+

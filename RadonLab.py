@@ -13,6 +13,7 @@ n=len(sp)
 m=60
 
 seed = random.randint(0, 2**16)
+seed = 14723
 print "seed:", seed
 random.seed(seed)
 
