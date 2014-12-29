@@ -5,11 +5,12 @@ import numpy as np
 import datetime as dt
 import collections
 
-class Radon_fast:
+class Radon:
 
     def __init__(self, spatialDimensions, radonDimensions, sampleCount, sampleRateSeconds):
         self.spatialDimensions = spatialDimensions
         self.radonDimensions = radonDimensions
+        self.sampleCount = sampleCount
         self.array = self._create_array(sampleCount, sampleRateSeconds)
         self.array_transpose = self._create_array_transpose(sampleCount, sampleRateSeconds) 
 
@@ -19,14 +20,14 @@ class Radon_fast:
             sd = self.spatialDimensions[sd_index]
             index_delta = sd * rd * sampleRateSeconds
             index = i + index_delta
-            lower_index = math.floor(index)
-            upper_index = lower_index + 1
+            lower_index = int(math.floor(index))
+            upper_index = int(lower_index + 1)
             lower_fraction = 1 - index + lower_index
             upper_fraction = index - lower_index
             ret_array = []
-            if lower_index>=0 and lower_index < sampleCount:
+            if lower_fraction != 0.0 and lower_index>=0 and lower_index < sampleCount:
                 ret_array.append([lower_index, lower_fraction])
-            if upper_index>=0 and upper_index < sampleCount:
+            if upper_fraction != 0.0 and upper_index>=0 and upper_index < sampleCount:
                 ret_array.append([upper_index, upper_fraction])
             return ret_array
         sd_range = range(len(self.spatialDimensions))
@@ -39,14 +40,14 @@ class Radon_fast:
             sd = self.spatialDimensions[sd_index]
             index_delta = sd * rd * sampleRateSeconds
             index = i - index_delta
-            lower_index = math.floor(index)
-            upper_index = lower_index + 1
+            lower_index = int(math.floor(index))
+            upper_index = int(lower_index + 1)
             lower_fraction = 1 - index + lower_index
             upper_fraction = index - lower_index
             ret_array = []
-            if lower_index>=0 and lower_index < sampleCount:
+            if lower_fraction != 0.0 and lower_index>=0 and lower_index < sampleCount:
                 ret_array.append([lower_index, lower_fraction])
-            if upper_index>=0 and upper_index < sampleCount:
+            if upper_fraction != 0.0 and upper_index>=0 and upper_index < sampleCount:
                 ret_array.append([upper_index, upper_fraction])
             return ret_array
         sd_range = range(len(self.spatialDimensions))
@@ -73,20 +74,20 @@ class Radon_fast:
 
     def _test_func(self):
         def _get_mult(rd_index, rd2_index, index):
-            retArray = []
+            ret_array = []
             subarray = self.array[rd_index][index]
             for sd_index in sd_range:
                 indices = subarray[sd_index]
                 for index_and_factor in indices:
                     index2 = index_and_factor[0]
                     factor = index_and_factor[1]
-                    indices2 = self.array_transpose[sd_index][index2]
+                    indices2 = self.array_transpose[sd_index][index2][rd2_index]
                     for index_and_factor_2 in indices2:
                         ret_array.append([index_and_factor_2[0], index_and_factor_2[1]*factor])
             return ret_array
         sd_range = range(len(self.spatialDimensions))
         rd_range = range(len(self.radonDimensions))
-        sampleCount = input.shape[1]
+        sampleCount = self.sampleCount
         return [[[_get_mult(rd_index, rd2_index , index) for rd2_index in rd_range] for index in range(sampleCount)] for rd_index in rd_range]
 
 
