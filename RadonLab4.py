@@ -65,9 +65,8 @@ pl1[1].imshow(input_byInv.transpose(), interpolation="nearest", cmap=cm.get_cmap
 pl2[1].imshow(output_byInv.transpose(), cmap=cm.get_cmap("seismic"), vmax=2, vmin=-2, aspect='auto')
 #pl1[3].imshow(input_noAdj.transpose(), interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=1, vmin=-1, aspect='auto')
 #pl2[3].imshow(output_noAdj.transpose(), cmap=cm.get_cmap("seismic"), vmax=2, vmin=-2, aspect='auto')
-pl1[3].imshow(s.matrix_3.transpose(), interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=1, vmin=-1, aspect='auto')
+pl1[3].imshow((s.matrix_1+radon.adjointForward(output_diff)).transpose(), interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=1, vmin=-1, aspect='auto')
 pl2[3].imshow((output_full_new+output_diff).transpose(), cmap=cm.get_cmap("seismic"), vmax=2, vmin=-2, aspect='auto')
-
 
 
 pl1[0].set_title("Input")
