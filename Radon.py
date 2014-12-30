@@ -54,7 +54,7 @@ class Radon:
     def inverse(self, input):
         shape = input.shape
         size = input.size
-        return np.linalg.solve(self.matrix,input.reshape(size,1)).reshape(shape)
+        return np.linalg.lstsq(self.matrix,input.reshape(size,1))[0].reshape(shape)
 
     def adjointForward(self, input):
         shape = (len(self.radonDimensions), input.shape[1])
@@ -87,8 +87,8 @@ class Radon:
             print largest_index, np.linalg.norm(mat,2), np.linalg.norm(mat,1), abs(largest_value)
             temp[largest_index] += largest_value
             
-        retTuple = collections.namedtuple('matrices',['matrix_1','matrix_2'])    
-        return retTuple(np.dot(self.normalisingMatrix,temp).reshape(shape_radon), np.dot(normalisedTranspose,temp).reshape(shape_spatial)) 
+        retTuple = collections.namedtuple('matrices',['matrix_1','matrix_2','matrix_3'])    
+        return retTuple(np.dot(self.normalisingMatrix,temp).reshape(shape_radon), np.dot(normalisedTranspose,temp).reshape(shape_spatial), mat.reshape(shape_radon)) 
 
 
     @staticmethod
