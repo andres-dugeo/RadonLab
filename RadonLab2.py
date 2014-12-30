@@ -63,4 +63,7 @@ pl1[0].set_title("Input")
 pl1[1].set_title("Radon")
 pl1[2].set_title("Modified Radon")
 
+pl = plot.figure()
+plot.plot((s.stats))
+
 plot.show()

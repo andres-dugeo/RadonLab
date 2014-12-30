@@ -79,16 +79,25 @@ class Radon:
         initial = np.dot(self.matrix, input.reshape(size,1))
         evaluator = np.dot(self.matrix, normalisedTranspose)
 
+        max_value = -1
+        max_L1norm = -1
+        max_L2norm = -1
+        stats = []
         temp = np.zeros_like(initial)  
         for i in xrange(0, iterations):
             mat = initial - np.dot(evaluator, temp)
             largest_index = Radon.argAbsMax(mat)
             largest_value = mat[largest_index]
-            print largest_index, np.linalg.norm(mat,2), np.linalg.norm(mat,1), abs(largest_value)
+            l1norm = np.linalg.norm(mat,1)
+            l2norm = np.linalg.norm(mat,2)
+            max_value = max(abs(largest_value), max_value)
+            max_L1norm = max(l1norm, max_L1norm)
+            max_L2norm = max(l2norm, max_L2norm)
+            stats.append([l1norm/max_L1norm, l2norm/max_L2norm, abs(largest_value)/max_value])
             temp[largest_index] += largest_value
             
-        retTuple = collections.namedtuple('matrices',['matrix_1','matrix_2','matrix_3'])    
-        return retTuple(np.dot(self.normalisingMatrix,temp).reshape(shape_radon), np.dot(normalisedTranspose,temp).reshape(shape_spatial), mat.reshape(shape_radon)) 
+        retTuple = collections.namedtuple('matrices',['matrix_1','matrix_2','matrix_3','stats'])
+        return retTuple(np.dot(self.normalisingMatrix,temp).reshape(shape_radon), np.dot(normalisedTranspose,temp).reshape(shape_spatial), mat.reshape(shape_radon), stats) 
 
 
     @staticmethod
