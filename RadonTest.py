@@ -1,0 +1,103 @@
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
+
+import numpy as np
+import matplotlib.pyplot as plot
+import matplotlib.cm as cm
+import random
+import Radon
+import Radon_fast
+import math
+
+#sp=[-5,-4,-3,-2,-1,0,1,2,3,4,5]
+#rd=np.linspace(-1, 1, len(sp)-1)
+#n=len(sp)
+#m=10
+
+#input = np.zeros((10,10))
+#input[3][5] = 1
+
+#radon_old = Radon.Radon(sp, rd, m, 1)
+#output = radon_old.adjointInverse(input)
+#outoutput = radon_old.forward(output)
+
+#radon = Radon_fast.Radon(sp, rd, m, 1)
+#output2 = np.zeros((11,10))
+
+#compute = radon._adjoint_inverse(radon._assign(output2))
+#compute(3,4,1)
+#output2 = radon._test_func(3,5)
+
+#f,(pl1, pl2, pl3) = plot.subplots(3,2)
+#pl1[0].imshow(input.transpose(), interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=1, vmin=-1, aspect='auto')
+#pl2[0].imshow(output.transpose(), cmap=cm.get_cmap("seismic"), vmax=2, vmin=-2, aspect='auto')
+#pl3[0].imshow(outoutput.transpose(),interpolation="nearest" ,cmap=cm.get_cmap("seismic"), vmax=2, vmin=-2, aspect='auto')
+#pl1[1].imshow(input.transpose(), interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=1, vmin=-1, aspect='auto')
+#pl2[1].imshow(radon._norm_test().transpose(), interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=12, vmin=-12, aspect='auto')
+#pl3[1].imshow(radon._create_normalisation().transpose(), interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=12, vmin=-12, aspect='auto')
+
+#print radon._create_normalisation()
+
+#pl1[0].set_title("Input")
+
+
+#plot.show()
+
+#quit()
+
+sp_short = [-5,-4,-3,3,4,5]
+sp = [-5,-4,-3,-2,-1,0,1,2,3,4,5]
+rd = np.linspace(- 1, 1, len(sp))
+n = len(sp)
+n_pruned = len(sp_short)
+
+output = np.load('./data.npy')[0:11,400:650]
+
+#output = np.zeros((11, 50))
+#for i in range(len(sp)):
+#    output[i][30] = 100000
+
+print output.shape
+
+m = output.shape[1]
+
+seed = random.randint(0, 2**16)
+print "seed:", seed
+random.seed(seed)
+
+radon = Radon.Radon(sp, rd, m, 1)
+#radon_pruned = Radon.Radon(sp_short, rd, m, 1)
+radon_fast = Radon_fast.Radon(sp_short, rd, m ,1)
+
+output_pruned = np.zeros((n_pruned,m))
+for i in range(n_pruned):
+    index = sp.index(sp_short[i])
+    for j in range(m):
+        output_pruned[(i,j)] = output[(index,j)]
+
+#s = radon_pruned.newScheme(output_pruned, 200)
+
+input_byInv = radon_fast._test_func(output_pruned)
+output_byInv = radon.adjointInverse(input_byInv)
+
+input = radon.adjointForward(output)
+
+output_full = output
+#output_full_new = radon.adjointInverse(s.matrix_1)
+
+f,(pl1, pl2) = plot.subplots(2,3)
+pl1[0].imshow(input.transpose(),interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=10000000, vmin=-10000000, aspect='auto')
+pl2[0].imshow(output_full.transpose(), cmap=cm.get_cmap("seismic"), vmax=100000, vmin=-100000, aspect='auto')
+#pl1[1].imshow(s.matrix_1.transpose(), interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=1000000, vmin=-1000000, aspect='auto')
+#pl2[1].imshow(output_full_new.transpose(), cmap=cm.get_cmap("seismic"), vmax=100000, vmin=-100000, aspect='auto')
+pl1[2].imshow(input_byInv.transpose(), interpolation="nearest", cmap=cm.get_cmap("seismic"), vmax=1000000, vmin=-1000000, aspect='auto')
+pl2[2].imshow(output_byInv.transpose(), cmap=cm.get_cmap("seismic"), vmax=100000, vmin=-100000, aspect='auto')
+
+pl1[0].set_title("Input")
+pl1[1].set_title("Radon")
+pl1[2].set_title("Modified Radon")
+
+#input_tp = radon.forward(output)
+#plot.figure()
+#plot.imshow(input_tp.transpose(),  interpolation="nearest" , cmap=cm.get_cmap("seismic"), vmax=1000000, vmin=-1000000, aspect='auto')
+
+plot.show()

@@ -38,12 +38,12 @@ class Radon:
                     upper_index = lower_index + 1
                     lower_fraction = 1 - index + lower_index
                     upper_fraction = index - lower_index
-                    if lower_index>=0 and lower_index < sampleCount:
+                    if lower_index >= 0 and lower_index < sampleCount:
                         ret_matrix[r_index * sampleCount + i][s_index * sampleCount + lower_index] += lower_fraction
-                    if upper_index>=0 and upper_index < sampleCount:
+                    if upper_index >= 0 and upper_index < sampleCount:
                         ret_matrix[r_index * sampleCount + i][s_index * sampleCount + upper_index] += upper_fraction
         print "End creating matrix, on",dt.datetime.now()
-        print "Rank:",np.linalg.matrix_rank(ret_matrix)
+        #print "Rank:",np.linalg.matrix_rank(ret_matrix)
         return ret_matrix
 
     def forward(self, input):
@@ -65,11 +65,6 @@ class Radon:
         shape = (len(self.spatialDimensions), input.shape[1])
         size = input.size
         return np.dot(self.matrix.transpose(),input.reshape(size,1)).reshape(shape)
-
-    def adjointInverse_fast(self, input):
-        sd_range = range(len(self.spatialDimensions))
-        rd_range = range(len(self.radonDimensions))
-        return [_get_indices(sd_index, rd_index , index) for sd_index in sd_range for rd_index in rd_range for index in range(sampleCount)]
 
     def newScheme(self, input, iterations): 
         shape_radon = (len(self.radonDimensions), input.shape[1])
